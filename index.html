@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <link rel="stylesheet" href="css/chessboard-1.0.0.min.css" />
+        <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+        <script src="js/chessboard-1.0.0.min.js"></script>
+    </head>
+    <body>
+        <!-- File picker -->
+        <input type="file" id="file" name="file" />
+        <!-- Load button -->
+        <button id="load">Load</button>
+        <!-- Chessboard -->
+        <div id="board1" style="width: 400px"></div>
+        <!-- Process button -->
+        <button id="process">Process</button>
+        <!-- Step forward button -->
+        <button id="stepForward">Step Forward</button>
+        <!-- Step backward button -->
+        <button id="stepBackward">Step Backward</button>
+        <!-- Rules container list -->
+        <ul id="rules"></ul>
+        <script>
+            var board1 = ChessBoard("board1", "start");
+            var contentString = "";
+            ruleTypes = [
+                "startTime",
+                "timeDelta",
+                "timer",
+                "castling",
+                "enpassant",
+                "promotion",
+                "gamemode",
+                "isAiGame",
+            ];
+            let rules = {};
+            let moves = [];
+            let movePosition = -1;
+            // When the load button is clicked
+            $("#load").click(function () {
+                // Get the file
+                var file = document.getElementById("file").files[0];
+                // Create a file reader
+                var reader = new FileReader();
+                // When the file is loaded
+                reader.onload = function (e) {
+                    // Get the file contents
+                    var contents = e.target.result;
+                    // Load the FEN
+                    // board1.position(contents);
+                    contentString = contents;
+                };
+                // Read the file
+                reader.readAsText(file);
+            });
+
+            // When the process button is clicked
+            $("#process").click(function () {
+                // Split the file contents into an array
+                var contentArray = contentString.split("\n");
+                // For each line in the file
+                for (var i = 0; i < contentArray.length; i++) {
+                    // If the line is not empty
+                    if (
+                        contentArray[i].startsWith("INFO: With Rules: RuleSet")
+                    ) {
+                        // Get the rules and remove "INFO: With Rules: RuleSet" and the first and last characters
+                        var ruleString = contentArray[i].substring(
+                            26,
+                            contentArray[i].length - 1
+                        );
+                        var ruleArray = ruleString.split(",");
+                        // For each rule
+                        for (var j = 0; j < ruleArray.length; j++) {
+                            // Split the rule into an array
+                            var rule = ruleArray[j].split("=");
+                            // Add the rule to the rules object
+                            rules[rule[0]] = rule[1];
+                            // Add the rule to the rules list
+                            $("#rules").append(
+                                "<li>" + rule[0] + ": " + rule[1] + "</li>"
+                            );
+                        }
+                    } else if (contentArray[i].startsWith("		 Moved from: ")) {
+                        // Get the 2 number pairs from the line "Moved from: ( 3, 6 ) to: ( 3, 4 )"
+                        var moveString = contentArray[i].substring(
+                            17,
+                            contentArray[i].length
+                        );
+                        var moveArray = moveString.split(") to: (");
+                        var from = moveArray[0].substring(0, 6);
+                        // console.log(from);
+                        var to = moveArray[1].substring(1, 6);
+                        // console.log(to);
+                        // Convert the number pairs to chessboard.js notation
+                        var fromNotation = convertToNotation(from);
+                        var toNotation = convertToNotation(to);
+                        // Add the move to the moves array
+                        moves.push(fromNotation + "-" + toNotation);
+                    }
+                }
+            });
+
+            // When the step forward button is clicked play the next move from the array
+            $("#stepForward").click(function () {
+                // If the move position is less than the length of the moves array
+                if (movePosition < moves.length - 1) {
+                    // Increment the move position
+                    movePosition++;
+                    // Play the move
+                    board1.move(moves[movePosition]);
+                }
+            });
+
+            // When the step backward button is clicked revert the played move
+            $("#stepBackward").click(function () {
+                // If the move position is greater than 0
+                if (movePosition > -1) {
+                    // Revert the move
+                    board1.move(reverseMove(moves[movePosition]));
+                    // Decrement the move position
+                    movePosition--;
+                }
+            });
+
+            function reverseMove(move) {
+                // Split the move into an array
+                var moveArray = move.split("-");
+                // Reverse the array
+                moveArray.reverse();
+                // Join the array
+                var reversedMove = moveArray.join("-");
+                // Return the reversed move
+                return reversedMove;
+            }
+
+            function convertToNotation(pair) {
+                // The coordinates are the following
+                // the rows are 0-7 from top to bottom
+                // the columns are 0-7 from left to right
+                // The pair is in the format (x, y)
+                // Where x is the column and y is the row
+                // The chessboard.js notation is the following
+                // the rows are 1-8 from bottom to top
+                // the columns are a-h from left to right
+                // Convert the pair to an array
+                // console.log(pair);
+                var pairArray = pair.split(", ");
+                // console.log(pairArray);
+                // Get the row and column
+                var row = pairArray[1];
+                var column = pairArray[0];
+                // Convert the row and column to chessboard.js notation
+                var rowNotation = 8 - row;
+                var columnNotation = String.fromCharCode(97 + parseInt(column));
+                // Return the chessboard.js notation
+                return columnNotation + rowNotation;
+            }
+        </script>
+    </body>
+</html>
