@@ -22,8 +22,12 @@
         <button id="stepForward">Step Forward</button>
         <!-- Step backward button -->
         <button id="stepBackward">Step Backward</button>
+        <!-- Reset Button -->
+        <button id="reset">Reset</button>
         <!-- Rules container list -->
         <ul id="rules"></ul>
+        <!-- Scrollable Log text container -->
+        <div id="log" style="overflow: scroll; height: 200px"></div>
         <script>
             var board1 = ChessBoard("board1", "start");
             var contentString = "";
@@ -102,6 +106,39 @@
                         // Add the move to the moves array
                         moves.push(fromNotation + "-" + toNotation);
                     }
+                    // Add the line to the log text container
+                    // If line start with INFO: color the line blue
+                    // If line start with WARNING: color the line orange
+                    // If line start with SEVERE: color the line red
+                    if (contentArray[i].startsWith("INFO:")) {
+                        $("#log").append(
+                            "<span style='color: blue'>" +
+                                contentArray[i] +
+                                "</span><br />"
+                        );
+                    } else if (contentArray[i].startsWith("WARNING:")) {
+                        $("#log").append(
+                            "<span style='color: orange'>" +
+                                contentArray[i] +
+                                "</span><br />"
+                        );
+                    } else if (contentArray[i].startsWith("SEVERE:")) {
+                        $("#log").append(
+                            "<span style='color: red'>" +
+                                contentArray[i] +
+                                "</span><br />"
+                        );
+                    } else if (
+                        contentArray[i].trim().startsWith("Moved from: ")
+                    ) {
+                        $("#log").append(
+                            "<span style='color: green'>" +
+                                contentArray[i] +
+                                "</span><br />"
+                        );
+                    } else {
+                        $("#log").append(contentArray[i] + "<br />");
+                    }
                 }
             });
 
@@ -160,6 +197,14 @@
                 // Return the chessboard.js notation
                 return columnNotation + rowNotation;
             }
+
+            // When the reset button is clicked
+            $("#reset").click(function () {
+                // Reset the board
+                board1.start();
+                // Reset the move position
+                movePosition = -1;
+            });
         </script>
     </body>
 </html>
