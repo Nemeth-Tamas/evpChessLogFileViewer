@@ -148,8 +148,49 @@
                 if (movePosition < moves.length - 1) {
                     // Increment the move position
                     movePosition++;
+                    // If the move is from e1 to h1 of from e1 to a1
+                    if (
+                        moves[movePosition] == "e1-g1" ||
+                        moves[movePosition] == "e1-c1"
+                    ) {
+                        // If the move is from e1 to h1
+                        if (moves[movePosition] == "e1-g1") {
+                            // Play the move
+                            board1.move("e1-g1");
+                            // Play the move
+                            board1.move("h1-f1");
+                        }
+                        // If the move is from e1 to a1
+                        if (moves[movePosition] == "e1-c1") {
+                            // Play the move
+                            board1.move("e1-c1");
+                            // Play the move
+                            board1.move("a1-d1");
+                        }
+                    } else if (
+                        moves[movePosition] == "e8-g8" ||
+                        moves[movePosition] == "e8-c8"
+                    ) {
+                        // If the move is from e8 to h8
+                        if (moves[movePosition] == "e8-g8") {
+                            // Play the move
+                            board1.move("e8-g8");
+                            // Play the move
+                            board1.move("h8-f8");
+                        }
+                        // If the move is from e8 to a8
+                        if (moves[movePosition] == "e8-c8") {
+                            // Play the move
+                            board1.move("e8-c8");
+                            // Play the move
+                            board1.move("a8-d8");
+                        }
+                    } else {
+                        // Play the move
+                        board1.move(moves[movePosition]);
+                    }
                     // Play the move
-                    board1.move(moves[movePosition]);
+                    // board1.move(moves[movePosition]);
                 }
             });
 
