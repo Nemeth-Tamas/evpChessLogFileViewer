@@ -31,6 +31,8 @@
         <script>
             var board1 = ChessBoard("board1", "start");
             var contentString = "";
+            let takenPieces = [];
+            let castleMoves = [];
             ruleTypes = [
                 "startTime",
                 "timeDelta",
@@ -186,6 +188,15 @@
                             board1.move("a8-d8");
                         }
                     } else {
+                        // If the board contains a piece at the to position of the move, add the piece to the captured pieces list with the move number as the key
+                        if (
+                            board1.position()[moves[movePosition].split("-")[1]]
+                        ) {
+                            takenPieces[movePosition] =
+                                board1.position()[
+                                    moves[movePosition].split("-")[1]
+                                ];
+                        }
                         // Play the move
                         board1.move(moves[movePosition]);
                     }
@@ -200,6 +211,16 @@
                 if (movePosition > -1) {
                     // Revert the move
                     board1.move(reverseMove(moves[movePosition]));
+                    // If the move number is in the captured pieces list add the piece back to the board
+                    console.log(takenPieces[movePosition]);
+
+                    if (takenPieces[movePosition]) {
+                        let currentBoard = board1.position();
+                        console.log(currentBoard);
+                        currentBoard[moves[movePosition].split("-")[1]] =
+                            takenPieces[movePosition];
+                        board1.position(currentBoard);
+                    }
                     // Decrement the move position
                     movePosition--;
                 }
